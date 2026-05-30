@@ -1,7 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
-  body { @apply bg-gray-950 text-white antialiased overflow-hidden; font-family: 'Google Sans', system-ui, sans-serif; }
-  h1,h2,h3 { font-family: 'Google Sans Display', 'Google Sans', sans-serif; }
+  html {
+    @apply bg-gray-950;
+  }
+
+  body {
+    @apply bg-gray-950 text-white antialiased overflow-x-hidden overflow-y-auto;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  #root {
+    min-height: 100dvh;
+  }
+}
+
+@layer components {
+  .btn-booth {
+    @apply bg-coffee-600 hover:bg-coffee-500 text-white font-semibold px-6 py-3
+           rounded-2xl text-base transition-all active:scale-95 shadow-lg
+           sm:px-8 sm:py-4 sm:text-lg;
+  }
 }
