@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html { font-size: 15px; }
+  body {
+    @apply bg-surface font-sans text-slate-800 antialiased;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+  h1,h2,h3,h4 { @apply font-display; }
+}
+
+@layer components {
+  /* Buttons */
+  .btn { @apply inline-flex items-center gap-2 font-medium rounded-xl px-4 py-2 text-sm transition-all duration-150 active:scale-[.98] disabled:opacity-40 disabled:pointer-events-none; }
+  .btn-primary { @apply btn bg-brand-600 hover:bg-brand-700 text-white shadow-sm; }
+  .btn-secondary { @apply btn bg-white hover:bg-surface-muted text-slate-700 border border-surface-border shadow-sm; }
+  .btn-ghost { @apply btn hover:bg-surface-muted text-slate-600; }
+  .btn-danger { @apply btn bg-red-500 hover:bg-red-600 text-white; }
+  .btn-sm { @apply px-3 py-1.5 text-xs rounded-lg; }
+  .btn-lg { @apply px-6 py-3 text-base rounded-2xl; }
+  .btn-icon { @apply btn p-2 rounded-xl; }
+
+  /* Inputs */
+  .input {
+    @apply block w-full rounded-xl border border-surface-border bg-white px-3.5 py-2.5 text-sm
+           placeholder:text-slate-400 transition-all duration-150
+           focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100;
+  }
+  .input-sm { @apply rounded-lg px-3 py-2 text-xs; }
+  .label { @apply block text-xs font-medium text-slate-500 mb-1.5; }
+
+  /* Cards */
+  .card { @apply bg-white rounded-2xl border border-surface-border shadow-card; }
+  .card-header { @apply px-5 py-4 border-b border-surface-border; }
+  .card-body { @apply px-5 py-4; }
+
+  /* Badges */
+  .badge { @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs font-medium; }
+  .badge-blue { @apply badge bg-brand-50 text-brand-700; }
+  .badge-green { @apply badge bg-emerald-50 text-emerald-700; }
+  .badge-amber { @apply badge bg-amber-50 text-amber-700; }
+  .badge-red { @apply badge bg-red-50 text-red-700; }
+  .badge-gray { @apply badge bg-slate-100 text-slate-600; }
+
+  /* Table */
+  .table-base { @apply w-full text-sm; }
+  .table-base thead tr { @apply border-b border-surface-border; }
+  .table-base thead th { @apply px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide; }
+  .table-base tbody tr { @apply border-b border-surface-border last:border-0 hover:bg-surface-muted transition-colors; }
+  .table-base tbody td { @apply px-4 py-3.5; }
+
+  /* Stat card */
+  .stat-card { @apply card p-5 flex flex-col gap-1; }
+  .stat-label { @apply text-xs font-medium text-slate-500 uppercase tracking-wide; }
+  .stat-value { @apply text-2xl font-display font-bold text-slate-800; }
+  .stat-sub { @apply text-xs text-slate-500; }
+
+  /* Sidebar nav item */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+           text-slate-500 hover:text-brand-700 hover:bg-brand-50
+           transition-all duration-150 cursor-pointer;
+  }
+  .nav-item.active {
+    @apply bg-brand-600 text-white hover:bg-brand-700 hover:text-white;
+  }
+
+  /* Product card in POS */
+  .product-card {
+    @apply card p-3 cursor-pointer hover:shadow-card-md hover:border-brand-200
+           active:scale-[.97] transition-all duration-150 select-none;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-slate-300; }
+
+/* Receipt print */
+@media print {
+  body * { visibility: hidden !important; }
+  #receipt-print, #receipt-print * { visibility: visible !important; }
+  #receipt-print { position: fixed; inset: 0; display: flex; align-items: start; justify-content: center; }
+}
