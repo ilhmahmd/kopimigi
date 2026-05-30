@@ -193,15 +193,22 @@ create table public.photo_sessions (
   order_id       uuid not null references public.orders(id) on delete cascade,
   token          uuid not null unique default gen_random_uuid(),
   token_url      text not null,
+  access_code    text not null unique,
+  with_photo     boolean not null default true,
+  background_id  text,
   status         photo_session_status not null default 'pending',
   photo_url      text,
   thumbnail_url  text,
+  processed_photo_url text,
+  receipt_image_url   text,
   expires_at     timestamptz not null default (now() + interval '30 minutes'),
   used_at        timestamptz,
+  printed_at     timestamptz,
   created_at     timestamptz not null default now()
 );
 
 create index photo_sessions_token_idx on public.photo_sessions(token);
+create index photo_sessions_access_code_idx on public.photo_sessions(access_code);
 create index photo_sessions_order_id_idx on public.photo_sessions(order_id);
 
 -- Auto-expire sessions via a scheduled job (set up in Supabase Edge Functions / pg_cron)
@@ -284,6 +291,19 @@ create policy "Cashier sees own orders; manager/owner sees all"
     public.current_user_role() in ('owner', 'manager')
   );
 
+create policy "Booth can read orders for active photo sessions"
+  on public.orders for select
+  using (
+    auth.role() = 'anon'
+    and exists (
+      select 1
+      from public.photo_sessions ps
+      where ps.order_id = orders.id
+        and ps.status = 'pending'
+        and ps.expires_at > now()
+    )
+  );
+
 create policy "Authenticated users can create orders"
   on public.orders for insert
   with check (auth.role() = 'authenticated');
@@ -306,6 +326,19 @@ create policy "order_items visible with parent order"
     )
   );
 
+create policy "Booth can read order items for active photo sessions"
+  on public.order_items for select
+  using (
+    auth.role() = 'anon'
+    and exists (
+      select 1
+      from public.photo_sessions ps
+      where ps.order_id = order_items.order_id
+        and ps.status = 'pending'
+        and ps.expires_at > now()
+    )
+  );
+
 create policy "Authenticated users can create order items"
   on public.order_items for insert
   with check (auth.role() = 'authenticated');
@@ -316,13 +349,18 @@ create policy "POS can read photo sessions"
   on public.photo_sessions for select
   using (auth.role() = 'authenticated');
 
+create policy "Booth can read photo sessions by token (anon)"
+  on public.photo_sessions for select
+  using (auth.role() = 'anon');
+
 create policy "Authenticated users can create photo sessions"
   on public.photo_sessions for insert
   with check (auth.role() = 'authenticated');
 
 create policy "Booth can update session by token (anon)"
   on public.photo_sessions for update
-  using (true);  -- secured at app layer by token lookup
+  using (auth.role() = 'anon')
+  with check (auth.role() = 'anon');
 
 -- ─────────────────────────────────────────────────────────────
 -- 10. SUPABASE STORAGE — bucket for photobooth images
@@ -340,6 +378,15 @@ create policy "Anyone can read photobooth images"
 create policy "Authenticated users can upload photobooth images"
   on storage.objects for insert
   with check (bucket_id = 'photobooth' and auth.role() = 'authenticated');
+
+create policy "Booth can upload photobooth images"
+  on storage.objects for insert
+  with check (bucket_id = 'photobooth' and auth.role() = 'anon');
+
+create policy "Booth can update photobooth images"
+  on storage.objects for update
+  using (bucket_id = 'photobooth' and auth.role() = 'anon')
+  with check (bucket_id = 'photobooth' and auth.role() = 'anon');
 
 -- ─────────────────────────────────────────────────────────────
 -- 11. SEED DATA — Categories & sample products

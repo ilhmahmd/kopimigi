@@ -107,11 +107,17 @@ export type Database = {
           order_id: string
           token: string
           token_url: string
+          access_code: string
+          with_photo: boolean
+          background_id: string | null
           status: 'pending' | 'used' | 'expired'
           photo_url: string | null
           thumbnail_url: string | null
+          processed_photo_url: string | null
+          receipt_image_url: string | null
           expires_at: string
           used_at: string | null
+          printed_at: string | null
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['photo_sessions']['Row'], 'id' | 'created_at'>

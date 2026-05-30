@@ -24,3 +24,26 @@
            sm:px-8 sm:py-4 sm:text-lg;
   }
 }
+
+@media print {
+  body {
+    background: white !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #booth-receipt-print,
+  #booth-receipt-print * {
+    visibility: visible;
+  }
+
+  #booth-receipt-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 280px;
+    box-shadow: none !important;
+  }
+}

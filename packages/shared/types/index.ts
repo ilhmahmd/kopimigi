@@ -100,11 +100,17 @@ export interface PhotoSession {
   order?: Order
   token: string          // unique UUID, embedded in QR code
   token_url: string      // full URL: https://booth.domain/session/{token}
+  access_code: string    // short code entered at the booth station
+  with_photo: boolean
+  background_id?: string
   status: PhotoSessionStatus
   photo_url?: string     // Supabase Storage URL after photo taken
   thumbnail_url?: string // smaller version for receipt
+  processed_photo_url?: string
+  receipt_image_url?: string
   expires_at: string     // default 30 min after creation
   used_at?: string
+  printed_at?: string
   created_at: string
 }
 

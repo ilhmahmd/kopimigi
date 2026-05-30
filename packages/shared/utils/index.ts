@@ -37,8 +37,16 @@ export function generatePhotoToken(): string {
   return crypto.randomUUID()
 }
 
+export function generatePhotoAccessCode(): string {
+  return String(Math.floor(100000 + Math.random() * 900000))
+}
+
 export function buildTokenUrl(boothBaseUrl: string, token: string): string {
   return `${boothBaseUrl}/session/${token}`
+}
+
+export function buildAccessCodeUrl(boothBaseUrl: string, accessCode: string): string {
+  return `${boothBaseUrl}/access/${accessCode}`
 }
 
 // ─── Date helpers ────────────────────────────────────────────────────────────
