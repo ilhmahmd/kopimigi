@@ -2,13 +2,22 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useCartStore } from '@/stores/cartStore'
 import { formatRupiah } from '@/lib/format'
-import { X, Banknote, CreditCard, QrCode, Smartphone, Tag, Check, Printer } from 'lucide-react'
+import { X, Banknote, CreditCard, QrCode, Smartphone, Tag, Check, Printer, Copy } from 'lucide-react'
 import toast from 'react-hot-toast'
-import QRCode from 'qrcode'
 import { Database } from '@coffeeshop/shared/supabase/database.types'
 
 // 1. Definisikan tipe data diskon dari baris database asli
 type DiscountRow = Database['public']['Tables']['discounts']['Row']
+
+// Generate simple alphanumeric access code
+const generateAccessCode = (): string => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  let code = ''
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return code
+}
 
 const PAYMENT_METHODS = [
   { id: 'cash', label: 'Tunai', icon: Banknote },
@@ -25,7 +34,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
   const [discountCode, setDiscountCode] = useState('')
   const [loadingDiscount, setLoadingDiscount] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState<{ orderNumber: string; qrUrl: string; qrDataUrl: string } | null>(null)
+  const [success, setSuccess] = useState<{ orderNumber: string; accessCode: string } | null>(null)
 
   const change = payMethod === 'cash' ? Math.max(0, Number(amountPaid) - total()) : 0
   const isPaid = payMethod !== 'cash' || Number(amountPaid) >= total()
@@ -80,20 +89,21 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
         amount_paid: payMethod === 'cash' ? Number(amountPaid) : tot,
         change_amount: change,
         status: 'paid',
+        notes: null,
       }
 
       const { data: order, error: orderErr } = await supabase
         .from('orders')
-        .insert(orderPayload)
+        .insert([orderPayload] as any)
         .select()
-        .single()
+        .single() as any
 
       if (orderErr) throw orderErr
       if (!order) throw new Error('Gagal membuat data order')
 
       // 5. Masukkan data ke order_items
       const orderItemsPayload: Database['public']['Tables']['order_items']['Insert'][] = items.map(i => ({
-        order_id: order.id,
+        order_id: (order as any).id,
         product_id: i.product.id,
         product_name: i.product.name,
         product_price: i.product.price,
@@ -102,26 +112,35 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
         notes: i.notes ?? null,
       }))
 
-      await supabase.from('order_items').insert(orderItemsPayload)
+      await supabase.from('order_items').insert(orderItemsPayload as any)
 
-      // Create photo session + QR
+      // Create photo session with access code
       const token = crypto.randomUUID()
+      const accessCode = generateAccessCode()
       const boothUrl = import.meta.env.VITE_BOOTH_BASE_URL || 'http://localhost:5174'
       const tokenUrl = `${boothUrl}/session/${token}`
+      const accessCodeUrl = `${boothUrl}/access/${accessCode}`
 
       const sessionPayload: Database['public']['Tables']['photo_sessions']['Insert'] = {
-        order_id: order.id,
+        order_id: (order as any).id,
         token,
         token_url: tokenUrl,
+        access_code: accessCode,
+        with_photo: true,
+        background_id: null,
+        photo_url: null,
+        thumbnail_url: null,
+        processed_photo_url: null,
+        receipt_image_url: null,
         status: 'pending',
         expires_at: new Date(Date.now() + 30 * 60000).toISOString(),
+        used_at: null,
+        printed_at: null,
       }
 
-      await supabase.from('photo_sessions').insert(sessionPayload)
+      await supabase.from('photo_sessions').insert([sessionPayload] as any)
 
-      const qrDataUrl = await QRCode.toDataURL(tokenUrl, { width: 200, margin: 1, color: { dark: '#2B4083', light: '#ffffff' } })
-
-      setSuccess({ orderNumber: orderNum, qrUrl: tokenUrl, qrDataUrl })
+      setSuccess({ orderNumber: orderNum, accessCode })
       clearCart()
       toast.success('Transaksi berhasil!')
     } catch (err: any) {
@@ -133,6 +152,11 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
 
   // ── Success screen ──────────────────────────────────────
   if (success) {
+    const copyToClipboard = () => {
+      navigator.clipboard.writeText(success.accessCode)
+      toast.success('Kode berhasil disalin!')
+    }
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 animate-fade-in">
         <div className="card w-full max-w-sm p-8 text-center animate-slide-in">
@@ -143,10 +167,19 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
           <p className="text-sm text-slate-500 mb-6">#{success.orderNumber}</p>
 
           <div className="bg-surface-muted rounded-2xl p-5 mb-6">
-            <p className="text-xs text-slate-500 mb-3">QR Code Photobooth</p>
-            <img src={success.qrDataUrl} alt="QR Photobooth" className="mx-auto w-40 h-40 rounded-xl" />
+            <p className="text-xs text-slate-500 mb-3">Kode Akses Photobooth</p>
+            <div className="bg-white rounded-xl p-6 mb-3 border-2 border-brand-200">
+              <p className="text-4xl font-bold font-mono text-brand-700 tracking-widest">{success.accessCode}</p>
+            </div>
+            <button
+              onClick={copyToClipboard}
+              className="w-full flex items-center justify-center gap-2 text-xs text-slate-500 hover:text-slate-700 transition-colors"
+            >
+              <Copy size={12} />
+              Salin kode
+            </button>
             <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-              Berikan QR ini ke pelanggan.<br />Berlaku 30 menit.
+              Berikan kode ini ke pelanggan.<br />Berlaku 30 menit.
             </p>
           </div>
 
