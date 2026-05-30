@@ -97,9 +97,11 @@ export default function SessionPage() {
     <main className="min-h-dvh bg-gray-950 px-4 py-6 text-white sm:p-6">
       <section className="mx-auto grid w-full max-w-6xl gap-5 lg:grid-cols-[1fr_360px]">
         <div className="space-y-4">
-          <div>
-            <p className="text-sm text-gray-400">Kode Akses</p>
-            <h1 className="text-3xl font-semibold tracking-widest text-blue-500">{accessCode}</h1>
+          <div className="flex items-center gap-3 rounded-xl bg-brand-600/20 border border-brand-400/30 px-4 py-3">
+            <div className="flex-1">
+              <p className="text-xs font-medium text-brand-300 uppercase tracking-wide">Kode Akses</p>
+              <h1 className="text-3xl font-semibold tracking-widest text-brand-200">{accessCode}</h1>
+            </div>
           </div>
 
           <div className={`overflow-hidden rounded-lg border border-white/10 ${selectedBackground.className}`}>
@@ -112,7 +114,7 @@ export default function SessionPage() {
             ) : (
               <div className="flex min-h-[320px] items-center justify-center bg-gray-900 text-center">
                 <div>
-                  <Printer className="mx-auto mb-3 text-coffee-500" size={44} />
+                  <Printer className="mx-auto mb-3 text-brand-400" size={44} />
                   <p className="text-xl font-semibold">Mode Struk Tanpa Foto</p>
                 </div>
               </div>
@@ -134,31 +136,31 @@ export default function SessionPage() {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <button
-              className={`rounded-lg border p-4 text-left ${withPhoto ? 'border-coffee-500 bg-coffee-600/20' : 'border-white/10 bg-white/5'}`}
+              className={`option-tile ${withPhoto ? 'selected' : ''}`}
               onClick={() => setWithPhoto(true)}
             >
-              <Camera className="mb-2" size={20} />
+              <Camera className={`mb-2 ${withPhoto ? 'text-brand-300' : 'text-gray-400'}`} size={20} />
               <p className="font-semibold">Dengan Foto</p>
             </button>
             <button
-              className={`rounded-lg border p-4 text-left ${!withPhoto ? 'border-coffee-500 bg-coffee-600/20' : 'border-white/10 bg-white/5'}`}
+              className={`option-tile ${!withPhoto ? 'selected' : ''}`}
               onClick={() => setWithPhoto(false)}
             >
-              <Printer className="mb-2" size={20} />
+              <Printer className={`mb-2 ${!withPhoto ? 'text-brand-300' : 'text-gray-400'}`} size={20} />
               <p className="font-semibold">Tanpa Foto</p>
             </button>
           </div>
 
-          <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-            <div className="mb-3 flex items-center gap-2">
+          <div className="card-booth">
+            <div className="mb-3 flex items-center gap-2 text-brand-300">
               <ImageIcon size={18} />
-              <h2 className="font-semibold">Background</h2>
+              <h2 className="font-semibold text-white">Background</h2>
             </div>
             <div className="grid grid-cols-3 gap-3">
               {backgrounds.map((background) => (
                 <button
                   key={background.id}
-                  className={`rounded-lg border p-2 text-sm ${backgroundId === background.id ? 'border-coffee-500' : 'border-white/10'}`}
+                  className={`option-tile text-sm py-2 px-2 ${backgroundId === background.id ? 'selected' : ''}`}
                   onClick={() => setBackgroundId(background.id)}
                 >
                   <span className={`mb-2 block h-14 rounded ${background.className}`} />
@@ -169,10 +171,10 @@ export default function SessionPage() {
           </div>
         </div>
 
-        <aside className="rounded-lg border border-white/10 bg-white/5 p-4">
-          <div className="mb-3 flex items-center gap-2">
+        <aside className="card-booth">
+          <div className="mb-3 flex items-center gap-2 text-brand-300">
             <Scissors size={18} />
-            <h2 className="font-semibold">Preview Thermal</h2>
+            <h2 className="font-semibold text-white">Preview Thermal</h2>
           </div>
 
           <div id="booth-receipt-print" className="mx-auto w-[280px] bg-white p-4 font-mono text-sm text-black">

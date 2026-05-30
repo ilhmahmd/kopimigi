@@ -18,16 +18,53 @@
 }
 
 @layer components {
+  /* ── Primary button (biru brand, selaras dengan POS kasir) ── */
   .btn-booth {
-    @apply text-white font-semibold px-6 py-3 rounded-2xl text-base transition-all active:scale-95 shadow-lg
-           sm:px-8 sm:py-4 sm:text-lg;
-    background-color: #b85613;
+    @apply inline-flex items-center justify-center gap-3
+           text-white font-semibold px-6 py-3 rounded-2xl text-base
+           transition-all duration-150 active:scale-95 shadow-lg
+           sm:px-8 sm:py-4 sm:text-lg
+           bg-brand-600 hover:bg-brand-700 disabled:opacity-40 disabled:pointer-events-none;
   }
 
-  .btn-booth:hover {
-    background-color: #d4701b;
+  /* ── Ghost / outline button ── */
+  .btn-booth-ghost {
+    @apply inline-flex items-center justify-center gap-3
+           font-semibold px-6 py-3 rounded-2xl text-base
+           transition-all duration-150 active:scale-95
+           border border-brand-400/40 text-brand-300 hover:bg-brand-600/20
+           sm:px-8 sm:py-4 sm:text-lg
+           disabled:opacity-40 disabled:pointer-events-none;
+  }
+
+  /* ── Card panel dark ── */
+  .card-booth {
+    @apply rounded-xl border border-white/10 bg-white/5 p-4;
+  }
+
+  /* ── Selection card (option tile) ── */
+  .option-tile {
+    @apply rounded-xl border p-4 text-left transition-all duration-150
+           border-white/10 bg-white/5 hover:border-brand-400/60 hover:bg-brand-600/10;
+  }
+  .option-tile.selected {
+    @apply border-brand-400 bg-brand-600/20 ring-1 ring-brand-500/40;
+  }
+
+  /* ── Input ── */
+  .input-booth {
+    @apply block w-full rounded-xl border border-white/10 bg-white/5
+           px-4 py-3 text-white placeholder:text-gray-500
+           transition-all duration-150
+           focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-600/40;
   }
 }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.25); }
 
 @media print {
   body {
@@ -51,3 +88,4 @@
     box-shadow: none !important;
   }
 }
+

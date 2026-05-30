@@ -4,7 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: { 400:'#5570ce', 500:'#3554c4', 600:'#2B4083', 700:'#243672', 900:'#14204a' },
+        brand: {
+          50:  '#eef1fb',
+          100: '#d5dcf4',
+          200: '#adb9e9',
+          300: '#7e93db',
+          400: '#5570ce',
+          500: '#3554c4',
+          600: '#2B4083',
+          700: '#243672',
+          800: '#1c2b5e',
+          900: '#14204a',
+          950: '#0d1530',
+        },
       },
       fontFamily: {
         sans:    ['"Google Sans"', 'system-ui', 'sans-serif'],
