@@ -6,12 +6,13 @@
     "packages/*"
   ],
   "scripts": {
-    "pos": "npm run dev --workspace=apps/pos",
-    "booth": "npm run dev --workspace=apps/booth",
-    "dev": "concurrently \"npm run pos\" \"npm run booth\"",
-    "build:pos": "npm run build --workspace=apps/pos",
-    "build:booth": "npm run build --workspace=apps/booth"
-  },
+  "pos": "npm run dev --workspace=apps/pos",
+  "booth": "npm run dev --workspace=apps/booth",
+  "dev": "concurrently \"npm run pos\" \"npm run booth\"",
+  "build:pos": "npm run build --workspace=apps/pos",
+  "build:booth": "npm run build --workspace=apps/booth",
+  "build:vercel": "node scripts/build-vercel.mjs"
+},
   "devDependencies": {
     "concurrently": "^8.2.2"
   }
