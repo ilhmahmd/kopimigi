@@ -99,7 +99,7 @@ export default function SessionPage() {
         <div className="space-y-4">
           <div>
             <p className="text-sm text-gray-400">Kode Akses</p>
-            <h1 className="text-3xl font-semibold tracking-widest">{accessCode}</h1>
+            <h1 className="text-3xl font-semibold tracking-widest text-blue-500">{accessCode}</h1>
           </div>
 
           <div className={`overflow-hidden rounded-lg border border-white/10 ${selectedBackground.className}`}>
@@ -107,7 +107,7 @@ export default function SessionPage() {
               photoUrl ? (
                 <img className="h-full max-h-[58dvh] w-full object-contain grayscale contrast-125 mix-blend-multiply" src={photoUrl} alt="Foto pelanggan" />
               ) : (
-                <video ref={videoRef} className="h-full max-h-[58dvh] w-full bg-black object-cover" autoPlay muted playsInline />
+                <video ref={videoRef} className="h-full max-h-[58dvh] w-full bg-black object-contain" autoPlay muted playsInline />
               )
             ) : (
               <div className="flex min-h-[320px] items-center justify-center bg-gray-900 text-center">
@@ -126,7 +126,7 @@ export default function SessionPage() {
               <Camera size={22} />
               Ambil Foto
             </button>
-            <button className="btn-booth inline-flex items-center justify-center gap-3" onClick={() => setPhotoUrl('')}>
+            <button className="btn-booth inline-flex items-center justify-center gap-3" onClick={() => { setPhotoUrl(''); setCameraReady(true); }}>
               <RefreshCw size={22} />
               Ulangi
             </button>
@@ -178,22 +178,26 @@ export default function SessionPage() {
           <div id="booth-receipt-print" className="mx-auto w-[280px] bg-white p-4 font-mono text-sm text-black">
             <div className="text-center">
               <p className="text-base font-bold">{import.meta.env.VITE_COFFEE_SHOP_NAME || 'Kopimigi'}</p>
-              <p>PHOTOBOOTH</p>
-              <p>Kode {accessCode}</p>
+              <p className="text-xs">PHOTOBOOTH</p>
+              <div className="my-2 border-t border-dashed border-black" />
+              <p className="text-lg font-bold">Kode: {accessCode}</p>
+              <div className="my-2 border-t border-dashed border-black" />
             </div>
-            <div className="my-3 border-t border-dashed border-black" />
+            <div className="text-center text-xs my-2">
+              <p>{new Date().toLocaleString('id-ID')}</p>
+            </div>
             {withPhoto && (
-              <div className="mb-3 overflow-hidden border border-black">
+              <div className="my-3">
                 {thermalPhotoUrl ? (
                   <img className="w-full" src={thermalPhotoUrl} alt="Preview thermal" />
                 ) : (
-                  <div className="flex h-52 items-center justify-center text-center text-xs">Ambil foto untuk preview</div>
+                  <div className="flex h-48 items-center justify-center text-center text-xs">Ambil foto untuk preview</div>
                 )}
               </div>
             )}
-            <p className="text-center text-xs">Terima kasih sudah berkunjung</p>
             <div className="my-3 border-t border-dashed border-black" />
-            <p className="text-center text-[10px]">Thermal receipt preview</p>
+            <p className="text-center text-xs">Terima kasih sudah berkunjung</p>
+            <p className="text-center text-[10px] mt-2">Preserving Memories, One Photo at a Time</p>
           </div>
 
           <button className="btn-booth mt-4 inline-flex w-full items-center justify-center gap-3" onClick={printReceipt}>

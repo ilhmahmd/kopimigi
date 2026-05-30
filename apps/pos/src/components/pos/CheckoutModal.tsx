@@ -29,7 +29,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
   const [discountCode, setDiscountCode] = useState('')
   const [loadingDiscount, setLoadingDiscount] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState<{ orderNumber: string; accessCode: string } | null>(null)
+  const [success, setSuccess] = useState<{ orderNumber: string; accessCode: string; orderData?: any } | null>(null)
 
   const change = payMethod === 'cash' ? Math.max(0, Number(amountPaid) - total()) : 0
   const isPaid = payMethod !== 'cash' || Number(amountPaid) >= total()
@@ -135,7 +135,20 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
 
       await supabase.from('photo_sessions').insert([sessionPayload] as any)
 
-      setSuccess({ orderNumber: orderNum, accessCode })
+      setSuccess({ 
+        orderNumber: orderNum, 
+        accessCode,
+        orderData: {
+          items,
+          subtotal: sub,
+          discountAmount: discAmt,
+          total: tot,
+          payMethod,
+          amountPaid: payMethod === 'cash' ? Number(amountPaid) : tot,
+          change,
+          discount
+        }
+      })
       clearCart()
       toast.success('Transaksi berhasil!')
     } catch (err: any) {
@@ -150,6 +163,94 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
     const copyToClipboard = () => {
       navigator.clipboard.writeText(success.accessCode)
       toast.success('Kode berhasil disalin!')
+    }
+
+    const printReceipt = () => {
+      const w = window.open('', '', 'width=400,height=600')
+      if (!w) return
+      
+      const orderData = success.orderData
+      const receiptHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: monospace; margin: 0; padding: 10px; width: 280px; }
+            .header { text-align: center; margin-bottom: 10px; }
+            .header h1 { margin: 0; font-size: 16px; font-weight: bold; }
+            .header p { margin: 2px 0; font-size: 11px; }
+            .divider { border-top: 1px dashed #000; margin: 8px 0; }
+            .items { font-size: 12px; }
+            .item { display: flex; justify-content: space-between; margin: 4px 0; }
+            .item-name { flex: 1; }
+            .item-price { text-align: right; }
+            .totals { font-size: 12px; margin-top: 10px; }
+            .total-row { display: flex; justify-content: space-between; margin: 4px 0; }
+            .total-label { font-weight: bold; }
+            .total-amount { font-weight: bold; text-align: right; }
+            .access-code { text-align: center; margin: 15px 0; }
+            .code-box { font-size: 24px; font-weight: bold; letter-spacing: 2px; margin: 10px 0; }
+            .footer { text-align: center; font-size: 10px; margin-top: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>COFFEE SHOP</h1>
+            <p>STRUK PEMBELIAN</p>
+            <p>${success.orderNumber}</p>
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="items">
+            ${orderData.items.map((item: any) => `
+              <div class="item">
+                <div class="item-name">${item.product.name} ×${item.quantity}</div>
+                <div class="item-price">${formatRupiah(item.product.price * item.quantity)}</div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="totals">
+            <div class="total-row">
+              <span>Subtotal</span>
+              <span>${formatRupiah(orderData.subtotal)}</span>
+            </div>
+            ${orderData.discount ? `
+              <div class="total-row">
+                <span>Diskon (${orderData.discount.code})</span>
+                <span>-${formatRupiah(orderData.discountAmount)}</span>
+              </div>
+            ` : ''}
+            <div class="total-row">
+              <span class="total-label">TOTAL</span>
+              <span class="total-amount">${formatRupiah(orderData.total)}</span>
+            </div>
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="access-code">
+            <p style="margin: 5px 0; font-size: 12px;">Kode Akses Photobooth:</p>
+            <div class="code-box">${success.accessCode}</div>
+            <p style="margin: 5px 0; font-size: 10px;">Berlaku 30 menit</p>
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="footer">
+            <p>Terima kasih atas kunjungan Anda</p>
+            <p>${new Date().toLocaleString('id-ID')}</p>
+          </div>
+        </body>
+        </html>
+      `
+      w.document.write(receiptHTML)
+      w.document.close()
+      w.print()
     }
 
     return (
@@ -180,7 +281,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
 
           <div className="flex gap-2">
             <button
-              onClick={() => { window.print(); }}
+              onClick={printReceipt}
               className="btn-secondary flex-1 justify-center"
             >
               <Printer size={16} />
