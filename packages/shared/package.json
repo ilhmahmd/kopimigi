@@ -1,0 +1,12 @@
+{
+  "name": "@coffeeshop/shared",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./types": "./types/index.ts",
+    "./supabase": "./supabase/client.ts",
+    "./utils": "./utils/index.ts"
+  }
+}
