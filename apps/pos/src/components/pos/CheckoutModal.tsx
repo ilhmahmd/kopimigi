@@ -9,14 +9,9 @@ import { Database } from '@coffeeshop/shared/supabase/database.types'
 // 1. Definisikan tipe data diskon dari baris database asli
 type DiscountRow = Database['public']['Tables']['discounts']['Row']
 
-// Generate simple alphanumeric access code
+// Generate 6-digit access code
 const generateAccessCode = (): string => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-  let code = ''
-  for (let i = 0; i < 8; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return code
+  return String(Math.floor(Math.random() * 1000000)).padStart(6, '0')
 }
 
 const PAYMENT_METHODS = [
