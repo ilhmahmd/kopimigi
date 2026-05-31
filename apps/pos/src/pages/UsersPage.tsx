@@ -39,9 +39,13 @@ export default function UsersPage() {
 
     if (modal?.mode === 'add') {
       if (!form.password) { toast.error('Password wajib diisi'); setSaving(false); return }
-      const response = await fetch('/api/create-user', {
+      const { data: { session } } = await supabase.auth.getSession()
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-user`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token || ''}`,
+        },
         body: JSON.stringify({
           email: form.email,
           password: form.password,
@@ -49,9 +53,9 @@ export default function UsersPage() {
           role: form.role,
         }),
       })
-      const data = await response.json()
+      const result = await response.json()
       if (!response.ok) {
-        toast.error(data?.error || 'Gagal menambahkan pengguna')
+        toast.error(result?.error || 'Gagal menambahkan pengguna')
         setSaving(false)
         return
       }

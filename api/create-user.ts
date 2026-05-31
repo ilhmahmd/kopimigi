@@ -1,5 +1,5 @@
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || ''
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -7,7 +7,11 @@ export default async function handler(req: any, res: any) {
   }
 
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-    return res.status(500).json({ error: 'Missing Supabase service credentials' })
+    console.error('Missing credentials:', { SUPABASE_URL: !!SUPABASE_URL, SERVICE_ROLE_KEY: !!SERVICE_ROLE_KEY })
+    return res.status(500).json({
+      error: 'Missing Supabase service credentials',
+      details: `SUPABASE_URL: ${SUPABASE_URL ? 'present' : 'missing'}, SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY ? 'present' : 'missing'}`,
+    })
   }
 
   const { email, password, full_name, role } = req.body || {}
@@ -38,11 +42,13 @@ export default async function handler(req: any, res: any) {
     const data = await response.json()
 
     if (!response.ok) {
+      console.error('Supabase admin error:', data)
       return res.status(response.status).json({ error: data?.error_description || data?.message || data?.error || 'Gagal membuat pengguna' })
     }
 
     return res.status(200).json(data)
   } catch (error: any) {
+    console.error('Server error:', error)
     return res.status(500).json({ error: error?.message || 'Server error' })
   }
 }
