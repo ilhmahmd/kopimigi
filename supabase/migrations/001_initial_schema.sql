@@ -82,6 +82,28 @@ create trigger products_updated_at
   for each row execute procedure public.set_updated_at();
 
 -- ─────────────────────────────────────────────────────────────
+-- 3.1. INVENTORY ITEMS
+-- ─────────────────────────────────────────────────────────────
+create type inventory_item_type as enum ('bahan_baku', 'kemasan', 'pelengkap', 'lainnya');
+
+create table public.inventory_items (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null,
+  item_type   inventory_item_type not null default 'bahan_baku',
+  unit        text not null default 'pcs',
+  quantity    numeric(12, 2) not null default 0,
+  min_stock   numeric(12, 2) not null default 0,
+  notes       text,
+  is_active   boolean not null default true,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+create trigger inventory_items_updated_at
+  before update on public.inventory_items
+  for each row execute procedure public.set_updated_at();
+
+-- ─────────────────────────────────────────────────────────────
 -- 4. DISCOUNTS
 -- ─────────────────────────────────────────────────────────────
 create type discount_type as enum ('percentage', 'fixed');
@@ -236,10 +258,20 @@ order by date desc;
 alter table public.app_users        enable row level security;
 alter table public.categories       enable row level security;
 alter table public.products         enable row level security;
+alter table public.inventory_items enable row level security;
 alter table public.discounts        enable row level security;
 alter table public.orders           enable row level security;
 alter table public.order_items      enable row level security;
 alter table public.photo_sessions   enable row level security;
+
+-- ── inventory_items ──
+create policy "Authenticated users can read inventory items"
+  on public.inventory_items for select
+  using (true);
+
+create policy "Owner/manager can manage inventory items"
+  on public.inventory_items for all
+  using (public.current_user_role() in ('owner', 'manager'));
 
 -- Helper: get current user's role
 create or replace function public.current_user_role()

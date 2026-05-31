@@ -130,3 +130,18 @@ export interface CartItem {
   quantity: number
   notes?: string
 }
+
+export type InventoryItemType = 'bahan_baku' | 'kemasan' | 'pelengkap' | 'lainnya'
+
+export interface InventoryItem {
+  id: string
+  name: string
+  item_type: InventoryItemType
+  unit: string
+  quantity: number
+  min_stock: number
+  notes?: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}

@@ -4,6 +4,11 @@ import { formatRupiah } from '@/lib/format'
 import { Plus, Pencil, Trash2, Search, ToggleLeft, ToggleRight, UtensilsCrossed } from 'lucide-react'
 import toast from 'react-hot-toast'
 
+const renderProductPlaceholder = (product: any) => {
+  if (product.categories?.icon) return product.categories.icon
+  return product.name?.slice(0, 2).toUpperCase() || '☕'
+}
+
 export default function MenuPage() {
   const [categories, setCategories] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
@@ -103,7 +108,7 @@ export default function MenuPage() {
         <div className="overflow-x-auto">
           <table className="table-base">
             <thead><tr>
-              <th>Menu</th><th>Kategori</th><th>Harga</th><th>Status</th><th></th>
+              <th>Gambar</th><th>Menu</th><th>Kategori</th><th>Harga</th><th>Status</th><th></th>
             </tr></thead>
             <tbody>
               {filtered.length === 0 ? (
@@ -113,10 +118,12 @@ export default function MenuPage() {
               ) : filtered.map(p => (
                 <tr key={p.id}>
                   <td>
+                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-sm font-semibold text-slate-700">
+                      {renderProductPlaceholder(p)}
+                    </div>
+                  </td>
+                  <td>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-surface-muted flex items-center justify-center text-xl flex-shrink-0">
-                        {p.categories?.icon || '☕'}
-                      </div>
                       <div>
                         <p className="font-medium text-slate-800">{p.name}</p>
                         {p.description && <p className="text-xs text-slate-400 truncate max-w-xs">{p.description}</p>}

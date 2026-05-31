@@ -10,6 +10,7 @@ import POSPage from '@/pages/POSPage'
 import OrdersPage from '@/pages/OrdersPage'
 import MenuPage from '@/pages/MenuPage'
 import DiscountsPage from '@/pages/DiscountsPage'
+import InventoryPage from '@/pages/InventoryPage'
 import ReportsPage from '@/pages/ReportsPage'
 import UsersPage from '@/pages/UsersPage'
 
@@ -47,6 +48,7 @@ function App() {
         <Route path="pos" element={<POSPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="menu" element={<MenuPage />} />
+        <Route path="inventory" element={<InventoryPage />} />
         <Route path="discounts" element={<DiscountsPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="users" element={<UsersPage />} />

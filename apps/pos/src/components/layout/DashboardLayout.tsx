@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import {
   ShoppingCart, UtensilsCrossed, Tag, BarChart2,
-  Users, ClipboardList, LogOut, Coffee, Menu, X
+  Users, ClipboardList, Box, LogOut, Coffee, Menu, X
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -10,6 +10,7 @@ const NAV = [
   { to: '/pos',       icon: ShoppingCart,  label: 'Kasir' },
   { to: '/orders',    icon: ClipboardList, label: 'Transaksi' },
   { to: '/menu',      icon: UtensilsCrossed, label: 'Menu' },
+  { to: '/inventory', icon: Box,           label: 'Persediaan' },
   { to: '/discounts', icon: Tag,           label: 'Diskon' },
   { to: '/reports',   icon: BarChart2,     label: 'Laporan' },
   { to: '/users',     icon: Users,         label: 'Pengguna' },

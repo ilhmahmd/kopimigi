@@ -7,6 +7,12 @@ import {
   Search, Plus, Minus, Trash2, ChevronRight,
   ShoppingBag
 } from 'lucide-react'
+
+const renderProductPlaceholder = (product: Product) => {
+  if (product.category?.icon) return product.category.icon
+  return product.name?.slice(0, 2).toUpperCase() || '☕'
+}
+
 import toast from 'react-hot-toast'
 import CheckoutModal from '@/components/pos/CheckoutModal'
 
@@ -98,9 +104,9 @@ export default function POSPage() {
                         {inCart.quantity}
                       </span>
                     )}
-                    {/* Image placeholder */}
-                    <div className="w-full aspect-square rounded-xl bg-gradient-to-br from-brand-50 to-surface-muted flex items-center justify-center mb-2.5 text-3xl">
-                      {(p as any).category?.icon || '☕'}
+                    {/* Generated white background image */}
+                    <div className="w-full aspect-square rounded-xl bg-white border border-slate-200 flex items-center justify-center mb-2.5 text-3xl text-slate-700">
+                      {renderProductPlaceholder(p)}
                     </div>
                     <p className="text-xs font-medium text-slate-800 leading-snug line-clamp-2 mb-1">{p.name}</p>
                     <p className="text-sm font-bold text-brand-700">{formatRupiah(p.price)}</p>
