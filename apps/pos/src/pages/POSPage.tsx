@@ -104,9 +104,11 @@ export default function POSPage() {
                         {inCart.quantity}
                       </span>
                     )}
-                    {/* Generated white background image */}
-                    <div className="w-full aspect-square rounded-xl bg-white border border-slate-200 flex items-center justify-center mb-2.5 text-3xl text-slate-700">
-                      {renderProductPlaceholder(p)}
+                    {/* Generated white background image or uploaded image */}
+                    <div className="w-full aspect-square rounded-xl bg-white border border-slate-200 overflow-hidden flex items-center justify-center mb-2.5 text-3xl text-slate-700">
+                      {p.image_url ? (
+                        <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />
+                      ) : renderProductPlaceholder(p)}
                     </div>
                     <p className="text-xs font-medium text-slate-800 leading-snug line-clamp-2 mb-1">{p.name}</p>
                     <p className="text-sm font-bold text-brand-700">{formatRupiah(p.price)}</p>

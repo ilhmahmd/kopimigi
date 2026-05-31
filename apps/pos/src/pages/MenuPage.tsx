@@ -15,7 +15,8 @@ export default function MenuPage() {
   const [activeCat, setActiveCat] = useState('all')
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState<{ mode: 'add' | 'edit'; product?: any } | null>(null)
-  const [form, setForm] = useState({ name: '', description: '', price: '', category_id: '', is_available: true })
+  const [form, setForm] = useState({ name: '', description: '', price: '', category_id: '', is_available: true, image_url: '', image_file: null as File | null })
+  const [imagePreview, setImagePreview] = useState('')
   const [saving, setSaving] = useState(false)
 
   const load = async () => {
@@ -30,18 +31,56 @@ export default function MenuPage() {
   useEffect(() => { load() }, [])
 
   const openAdd = () => {
-    setForm({ name: '', description: '', price: '', category_id: categories[0]?.id || '', is_available: true })
+    setForm({ name: '', description: '', price: '', category_id: categories[0]?.id || '', is_available: true, image_url: '', image_file: null })
+    setImagePreview('')
     setModal({ mode: 'add' })
   }
   const openEdit = (p: any) => {
-    setForm({ name: p.name, description: p.description || '', price: String(p.price), category_id: p.category_id, is_available: p.is_available })
+    setForm({
+      name: p.name,
+      description: p.description || '',
+      price: String(p.price),
+      category_id: p.category_id,
+      is_available: p.is_available,
+      image_url: p.image_url ?? '',
+      image_file: null,
+    })
+    setImagePreview(p.image_url ?? '')
     setModal({ mode: 'edit', product: p })
+  }
+
+  const removeImage = () => {
+    setForm(f => ({ ...f, image_file: null, image_url: '' }))
+    setImagePreview('')
   }
 
   const save = async () => {
     if (!form.name || !form.price || !form.category_id) { toast.error('Lengkapi data produk'); return }
     setSaving(true)
-    const payload = { name: form.name, description: form.description, price: Number(form.price), category_id: form.category_id, is_available: form.is_available }
+    const payload: any = {
+      name: form.name,
+      description: form.description,
+      price: Number(form.price),
+      category_id: form.category_id,
+      is_available: form.is_available,
+      image_url: form.image_url || null,
+    }
+
+    if (form.image_file) {
+      const file = form.image_file
+      const fileExt = file.name.split('.').pop() || 'jpg'
+      const filePath = `product-images/${crypto.randomUUID()}.${fileExt}`
+      const { error: uploadError } = await supabase.storage.from('product-images').upload(filePath, file)
+      if (uploadError) {
+        toast.error('Gagal upload gambar')
+        setSaving(false)
+        return
+      }
+
+      const { data: publicUrlData } = supabase.storage.from('product-images').getPublicUrl(filePath)
+      payload.image_url = publicUrlData.publicUrl
+    }
+
     if (modal?.mode === 'add') {
       const { error } = await supabase.from('products').insert(payload)
       if (error) { toast.error('Gagal menambah menu'); setSaving(false); return }
@@ -112,14 +151,16 @@ export default function MenuPage() {
             </tr></thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={5} className="text-center py-12 text-slate-400 text-sm">
+                <tr><td colSpan={6} className="text-center py-12 text-slate-400 text-sm">
                   <UtensilsCrossed size={32} className="mx-auto mb-2 opacity-30" />Tidak ada menu
                 </td></tr>
               ) : filtered.map(p => (
                 <tr key={p.id}>
                   <td>
-                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-sm font-semibold text-slate-700">
-                      {renderProductPlaceholder(p)}
+                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 overflow-hidden flex items-center justify-center text-sm font-semibold text-slate-700">
+                      {p.image_url ? (
+                        <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />
+                      ) : renderProductPlaceholder(p)}
                     </div>
                   </td>
                   <td>
@@ -170,6 +211,35 @@ export default function MenuPage() {
               <div>
                 <label className="label">Deskripsi</label>
                 <textarea className="input resize-none" rows={2} placeholder="Deskripsi singkat..." value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+              </div>
+              <div>
+                <label className="label">Gambar Menu</label>
+                <label className="input cursor-pointer flex items-center justify-between gap-3">
+                  <span>{form.image_file ? form.image_file.name : form.image_url ? 'Ganti gambar' : 'Pilih gambar'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      setForm(f => ({ ...f, image_file: file }))
+                      setImagePreview(URL.createObjectURL(file))
+                    }}
+                  />
+                </label>
+                {(imagePreview || form.image_url) && (
+                  <>
+                    <img
+                      src={imagePreview || form.image_url}
+                      alt="Preview gambar menu"
+                      className="mt-3 h-32 w-full rounded-xl border border-slate-200 object-contain"
+                    />
+                    <button type="button" onClick={removeImage} className="mt-2 text-sm text-red-600 hover:text-red-800">
+                      Hapus gambar
+                    </button>
+                  </>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>

@@ -420,6 +420,22 @@ create policy "Booth can update photobooth images"
   using (bucket_id = 'photobooth' and auth.role() = 'anon')
   with check (bucket_id = 'photobooth' and auth.role() = 'anon');
 
+insert into storage.buckets (id, name, public)
+values ('product-images', 'product-images', true)
+on conflict do nothing;
+
+create policy "Anyone can read product images"
+  on storage.objects for select
+  using (bucket_id = 'product-images');
+
+create policy "Authenticated users can upload product images"
+  on storage.objects for insert
+  with check (bucket_id = 'product-images' and auth.role() = 'authenticated');
+
+create policy "Authenticated users can manage product images"
+  on storage.objects for delete
+  using (bucket_id = 'product-images' and auth.role() = 'authenticated');
+
 -- ─────────────────────────────────────────────────────────────
 -- 11. SEED DATA — Categories & sample products
 -- ─────────────────────────────────────────────────────────────
