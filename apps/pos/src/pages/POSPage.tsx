@@ -4,13 +4,61 @@ import { useCartStore } from '@/stores/cartStore'
 import { formatRupiah } from '@/lib/format'
 import type { Product, Category } from '@coffeeshop/shared/types'
 import {
-  Search, Plus, Minus, Trash2, ChevronRight,
-  ShoppingBag
+  Search,
+  Plus,
+  Minus,
+  Trash2,
+  ChevronRight,
+  Cookie,
+  Coffee,
+  Milk,
+  ShoppingBag,
+  Sandwich,
+  Package,
 } from 'lucide-react'
 
+const iconMap = {
+  cookie: Cookie,
+  coffee: Coffee,
+  milk: Milk,
+  sandwich: Sandwich,
+  'shopping-bag': ShoppingBag,
+  package: Package,
+}
+
+const CategoryIcon = ({
+  icon,
+  size = 16,
+}: {
+  icon?: string
+  size?: number
+}) => {
+  if (!icon) return <Package size={size} />
+
+  const Icon =
+    iconMap[icon as keyof typeof iconMap]
+
+  if (!Icon) return <Package size={size} />
+
+  return <Icon size={size} />
+}
+
 const renderProductPlaceholder = (product: Product) => {
-  if (product.category?.icon) return product.category.icon
-  return product.name?.slice(0, 2).toUpperCase() || '☕'
+  const iconName =
+    (product as any)?.categories?.icon
+
+  const Icon =
+    iconMap[iconName as keyof typeof iconMap]
+
+  if (Icon) {
+    return <Icon size={42} strokeWidth={1.5} />
+  }
+
+  return (
+    <span className="font-semibold">
+      {product.name?.slice(0, 2).toUpperCase() || '☕'}
+    </span>
+  )
 }
 
 import toast from 'react-hot-toast'
@@ -70,8 +118,12 @@ export default function POSPage() {
                   : 'bg-surface-muted text-slate-600 hover:bg-surface-border'}
               `}
             >
-              <span>{(cat as any).icon || '📦'}</span>
-              <span>{cat.name}</span>
+              <CategoryIcon
+  icon={(cat as any).icon}
+  size={16}
+/>
+
+<span>{cat.name}</span>
             </button>
           ))}
         </div>
@@ -146,9 +198,12 @@ export default function POSPage() {
           ) : (
             items.map(item => (
               <div key={item.product.id} className="flex items-center gap-3 p-3 rounded-xl bg-surface-muted group">
-                <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center text-lg flex-shrink-0 shadow-sm">
-                  {(item.product as any).category?.icon || '☕'}
-                </div>
+                <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+  <CategoryIcon
+    icon={(item.product as any)?.categories?.icon}
+    size={18}
+  />
+</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-slate-700 truncate">{item.product.name}</p>
                   <p className="text-xs text-brand-600 font-semibold">{formatRupiah(item.product.price * item.quantity)}</p>

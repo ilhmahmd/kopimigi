@@ -1,12 +1,68 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { formatRupiah } from '@/lib/format'
-import { Plus, Pencil, Trash2, Search, ToggleLeft, ToggleRight, UtensilsCrossed } from 'lucide-react'
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  ToggleLeft,
+  ToggleRight,
+  UtensilsCrossed,
+  Cookie,
+  Coffee,
+  Milk,
+  ShoppingBag,
+  Sandwich,
+  Package,
+} from 'lucide-react'
 import toast from 'react-hot-toast'
 
+const iconMap = {
+  cookie: Cookie,
+  coffee: Coffee,
+  milk: Milk,
+  sandwich: Sandwich,
+  'shopping-bag': ShoppingBag,
+  package: Package,
+}
+
+const CategoryIcon = ({
+  icon,
+  size = 16,
+}: {
+  icon?: string
+  size?: number
+}) => {
+  if (!icon) return <Package size={size} />
+
+  const Icon = iconMap[icon as keyof typeof iconMap]
+
+  if (!Icon) return <Package size={size} />
+
+  return <Icon size={size} />
+}
+
 const renderProductPlaceholder = (product: any) => {
-  if (product.categories?.icon) return product.categories.icon
-  return product.name?.slice(0, 2).toUpperCase() || '☕'
+  const iconName = product.categories?.icon
+
+  const Icon =
+    iconMap[iconName as keyof typeof iconMap]
+
+  if (Icon) {
+    return (
+      <Icon
+        size={24}
+        strokeWidth={1.75}
+      />
+    )
+  }
+
+  return (
+    <span>
+      {product.name?.slice(0, 2).toUpperCase() || '☕'}
+    </span>
+  )
 }
 
 export default function MenuPage() {
@@ -136,7 +192,15 @@ export default function MenuPage() {
           {[{ id: 'all', name: 'Semua' }, ...categories].map(c => (
             <button key={c.id} onClick={() => setActiveCat(c.id)}
               className={`px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${activeCat === c.id ? 'bg-brand-600 text-white' : 'bg-white border border-surface-border text-slate-600 hover:border-brand-300'}`}>
-              {(c as any).icon && <span className="mr-1">{(c as any).icon}</span>}{c.name}
+              <div className="flex items-center gap-1.5">
+  {(c as any).icon && (
+    <CategoryIcon
+      icon={(c as any).icon}
+      size={14}
+    />
+  )}
+  <span>{c.name}</span>
+</div>
             </button>
           ))}
         </div>
@@ -172,7 +236,13 @@ export default function MenuPage() {
                     </div>
                   </td>
                   <td>
-                    <span className="badge badge-blue">{p.categories?.name}</span>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium">
+  <CategoryIcon
+    icon={p.categories?.icon}
+    size={12}
+  />
+  <span>{p.categories?.name}</span>
+</div>
                   </td>
                   <td className="font-semibold text-brand-700">{formatRupiah(p.price)}</td>
                   <td>
@@ -250,7 +320,9 @@ export default function MenuPage() {
                   <label className="label">Kategori *</label>
                   <select className="input" value={form.category_id} onChange={e => setForm(f => ({ ...f, category_id: e.target.value }))}>
                     <option value="">Pilih...</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+                    {categories.map(c => <option key={c.id} value={c.id}>
+  {c.name}
+</option>)}
                   </select>
                 </div>
               </div>

@@ -1,8 +1,47 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Category } from '@coffeeshop/shared/types'
-import { Plus, Pencil, Trash2, Search, Layers, Eye } from 'lucide-react'
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  Layers,
+  Eye,
+  Cookie,
+  Coffee,
+  Milk,
+  ShoppingBag,
+  Sandwich,
+  Package,
+} from 'lucide-react'
 import toast from 'react-hot-toast'
+
+const iconMap = {
+  cookie: Cookie,
+  coffee: Coffee,
+  milk: Milk,
+  sandwich: Sandwich,
+  'shopping-bag': ShoppingBag,
+  package: Package,
+}
+
+const CategoryIcon = ({
+  icon,
+  size = 18,
+}: {
+  icon?: string
+  size?: number
+}) => {
+  const Icon =
+    iconMap[icon as keyof typeof iconMap]
+
+  if (!Icon) {
+    return <Package size={size} />
+  }
+
+  return <Icon size={size} />
+}
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -146,7 +185,14 @@ export default function CategoriesPage() {
                 </tr>
               ) : filtered.map(category => (
                 <tr key={category.id}>
-                  <td className="text-lg">{category.icon || '🏷️'}</td>
+                  <td>
+  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-slate-50 border border-slate-200">
+    <CategoryIcon
+      icon={category.icon}
+      size={18}
+    />
+  </div>
+</td>
                   <td>{category.name}</td>
                   <td>
                     <div className="flex items-center gap-2">
@@ -190,9 +236,62 @@ export default function CategoriesPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="label">Icon</label>
-                  <input className="input" value={form.icon} onChange={e => setForm(f => ({ ...f, icon: e.target.value }))} placeholder="Emoji atau simbol" />
-                </div>
+  <label className="label">
+    Icon
+  </label>
+
+  <select
+    className="input"
+    value={form.icon}
+    onChange={e =>
+      setForm(f => ({
+        ...f,
+        icon: e.target.value,
+      }))
+    }
+  >
+    <option value="">
+      Pilih Icon
+    </option>
+
+    <option value="coffee">
+      Coffee
+    </option>
+
+    <option value="milk">
+      Milk
+    </option>
+
+    <option value="cookie">
+      Cookie
+    </option>
+
+    <option value="sandwich">
+      Sandwich
+    </option>
+
+    <option value="shopping-bag">
+      Shopping Bag
+    </option>
+
+    <option value="package">
+      Package
+    </option>
+  </select>
+
+  <div className="mt-3 flex items-center gap-3">
+  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50 border border-slate-200">
+    <CategoryIcon
+      icon={form.icon}
+      size={20}
+    />
+  </div>
+
+  <span className="text-xs text-slate-500">
+    Preview Icon
+  </span>
+</div>
+</div>
                 <div>
                   <label className="label">Warna</label>
                   <div className="flex items-center gap-2">
