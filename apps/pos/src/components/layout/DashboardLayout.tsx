@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import {
   ShoppingCart, UtensilsCrossed, Tag, BarChart2,
-  Users, ClipboardList, Box, LogOut, Coffee, Menu, X
+  Users, ClipboardList, Box, LogOut, Coffee, Menu, X, Layers
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -10,6 +10,7 @@ const NAV = [
   { to: '/pos',       icon: ShoppingCart,  label: 'Kasir' },
   { to: '/orders',    icon: ClipboardList, label: 'Transaksi' },
   { to: '/menu',      icon: UtensilsCrossed, label: 'Menu' },
+  { to: '/categories', icon: Layers,       label: 'Kategori' },
   { to: '/inventory', icon: Box,           label: 'Persediaan' },
   { to: '/discounts', icon: Tag,           label: 'Diskon' },
   { to: '/reports',   icon: BarChart2,     label: 'Laporan' },
@@ -88,7 +89,7 @@ export default function DashboardLayout({ userRole }: DashboardLayoutProps) {
       {/* Nav */}
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
         <p className="text-2xs font-medium text-slate-400 uppercase tracking-widest px-3 py-2">Menu</p>
-        {NAV.filter(item => item.to !== '/users' || ['owner', 'manager'].includes(userRole || '')).map(({ to, icon: Icon, label }) => (
+        {NAV.filter(item => !['/users', '/categories'].includes(item.to) || ['owner', 'manager'].includes(userRole || '')).map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}

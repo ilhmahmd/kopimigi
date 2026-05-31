@@ -12,6 +12,7 @@ import MenuPage from '@/pages/MenuPage'
 import DiscountsPage from '@/pages/DiscountsPage'
 import InventoryPage from '@/pages/InventoryPage'
 import ReportsPage from '@/pages/ReportsPage'
+import CategoriesPage from '@/pages/CategoriesPage'
 import UsersPage from '@/pages/UsersPage'
 
 function App() {
@@ -77,6 +78,7 @@ function App() {
         <Route path="pos" element={<POSPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="menu" element={<MenuPage />} />
+        <Route path="categories" element={['owner', 'manager'].includes(currentRole || '') ? <CategoriesPage /> : <Navigate to="/pos" replace />} />
         <Route path="inventory" element={<InventoryPage />} />
         <Route path="discounts" element={<DiscountsPage />} />
         <Route path="reports" element={<ReportsPage />} />

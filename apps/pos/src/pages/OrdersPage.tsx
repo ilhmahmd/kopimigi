@@ -20,6 +20,8 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [paymentFilter, setPaymentFilter] = useState('all')
   const [detail, setDetail] = useState<any>(null)
 
   const fetchOrders = async () => {
@@ -35,15 +37,21 @@ export default function OrdersPage() {
 
   useEffect(() => { fetchOrders() }, [])
 
-  const filtered = orders.filter(o =>
-    o.order_number.toLowerCase().includes(search.toLowerCase()) ||
-    o.app_users?.full_name?.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = orders.filter(o => {
+    const matchesSearch =
+      o.order_number.toLowerCase().includes(search.toLowerCase()) ||
+      o.app_users?.full_name?.toLowerCase().includes(search.toLowerCase())
+
+    const matchesStatus = statusFilter === 'all' || o.status === statusFilter
+    const matchesPayment = paymentFilter === 'all' || o.payment_method === paymentFilter
+
+    return matchesSearch && matchesStatus && matchesPayment
+  })
 
   return (
     <div className="p-6 space-y-5 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-xl font-display font-bold text-slate-800">Riwayat Transaksi</h1>
           <p className="text-xs text-slate-500">{orders.length} transaksi tercatat</p>
@@ -54,10 +62,33 @@ export default function OrdersPage() {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input className="input pl-10" placeholder="Cari nomor order..." value={search} onChange={e => setSearch(e.target.value)} />
+      <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_auto_auto] items-end">
+        <div className="relative max-w-sm">
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input className="input pl-10 w-full" placeholder="Cari nomor order atau kasir..." value={search} onChange={e => setSearch(e.target.value)} />
+        </div>
+
+        <div>
+          <label className="label mb-2">Status</label>
+          <select className="input w-full" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+            <option value="all">Semua status</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Dibayar</option>
+            <option value="completed">Selesai</option>
+            <option value="cancelled">Dibatalkan</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="label mb-2">Pembayaran</label>
+          <select className="input w-full" value={paymentFilter} onChange={e => setPaymentFilter(e.target.value)}>
+            <option value="all">Semua metode</option>
+            <option value="cash">Tunai</option>
+            <option value="qris">QRIS</option>
+            <option value="debit">Debit</option>
+            <option value="credit">Kredit</option>
+          </select>
+        </div>
       </div>
 
       {/* Table */}
