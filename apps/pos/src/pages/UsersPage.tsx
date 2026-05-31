@@ -61,11 +61,32 @@ export default function UsersPage() {
       }
       toast.success('Pengguna berhasil ditambahkan')
     } else {
+      if (form.password) {
+        const { data: { session } } = await supabase.auth.getSession()
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-user`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token || ''}`,
+          },
+          body: JSON.stringify({
+            user_id: modal.user?.id,
+            password: form.password,
+          }),
+        })
+        const result = await response.json()
+        if (!response.ok) {
+          toast.error(result?.error || 'Gagal mengubah password')
+          setSaving(false)
+          return
+        }
+      }
+
       const { error } = await supabase.from('app_users').update({
         full_name: form.full_name, role: form.role as any, is_active: form.is_active
       }).eq('id', modal?.user?.id)
       if (error) { toast.error(error.message); setSaving(false); return }
-      toast.success('Pengguna diperbarui')
+      toast.success(form.password ? 'Password dan pengguna diperbarui' : 'Pengguna diperbarui')
     }
     setSaving(false); setModal(null); load()
   }
@@ -131,12 +152,6 @@ export default function UsersPage() {
                 <label className="label">Email *</label>
                 <input type="email" className="input" placeholder="budi@kopimigi.id" value={form.email} onChange={e => setForm(f => ({...f, email: e.target.value}))} disabled={modal.mode === 'edit'} />
               </div>
-              {modal.mode === 'add' && (
-                <div>
-                  <label className="label">Password *</label>
-                  <input type="password" className="input" placeholder="Min. 6 karakter" value={form.password} onChange={e => setForm(f => ({...f, password: e.target.value}))} />
-                </div>
-              )}
               <div>
                 <label className="label">Role</label>
                 <select className="input" value={form.role} onChange={e => setForm(f => ({...f, role: e.target.value}))}>
@@ -144,6 +159,10 @@ export default function UsersPage() {
                   <option value="manager">Manager</option>
                   <option value="owner">Owner</option>
                 </select>
+              </div>
+              <div>
+                <label className="label">Password {modal.mode === 'add' ? '*' : '(opsional)'}</label>
+                <input type="password" className="input" placeholder={modal.mode === 'add' ? 'Min. 6 karakter' : 'Kosongkan jika tidak ingin mengubah'} value={form.password} onChange={e => setForm(f => ({...f, password: e.target.value}))} />
               </div>
               {modal.mode === 'edit' && (
                 <label className="flex items-center gap-2 cursor-pointer">

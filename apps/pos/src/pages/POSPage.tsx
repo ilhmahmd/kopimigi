@@ -44,13 +44,7 @@ export default function POSPage() {
       {/* ── Left: Product grid ─────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <div className="px-6 pt-6 pb-4 bg-white border-b border-surface-border">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-xl font-display font-bold text-slate-800">Kasir</h1>
-              <p className="text-xs text-slate-500">Pilih menu untuk tambah ke keranjang</p>
-            </div>
-          </div>
+        <div className="px-6 pt-6 pb-4 bg-white">
           {/* Search */}
           <div className="relative">
             <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
